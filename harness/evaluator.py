@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import re
 from typing import Optional
 
 import anthropic
@@ -103,8 +104,15 @@ async def _call_claude_api(client: anthropic.AsyncAnthropic, model: str, prompt:
         messages=[{"role": "user", "content": prompt}],
         temperature=0,
     )
-    content = response.content[0].text
-    return json.loads(content)["answer"]
+    content = response.content[0].text.strip()
+    try:
+        return json.loads(content)["answer"]
+    except (json.JSONDecodeError, KeyError):
+        # Fall back to extracting a bare letter from the response
+        match = re.search(r'\b([ABCD])\b', content)
+        if match:
+            return match.group(1)
+        raise ValueError(f"Could not parse answer from: {content!r}")
 
 
 async def evaluate_sample(
