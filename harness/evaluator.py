@@ -96,23 +96,29 @@ async def _call_claude_api(client: anthropic.AsyncAnthropic, model: str, prompt:
     """Call the Anthropic Claude API; returns predicted letter."""
     response = await client.messages.create(
         model=model,
-        max_tokens=16,
-        system=(
-            "You are a knowledgeable assistant taking a multiple-choice exam. "
-            'Respond with JSON in the format {"answer": "X"} where X is A, B, C, or D.'
-        ),
+        max_tokens=64,
+        system="You are a knowledgeable assistant taking a multiple-choice exam. Answer with only the correct letter.",
         messages=[{"role": "user", "content": prompt}],
+        output_config={
+            "format": {
+                "type": "json_schema",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "answer": {
+                            "type": "string",
+                            "enum": ["A", "B", "C", "D"],
+                        }
+                    },
+                    "required": ["answer"],
+                    "additionalProperties": False,
+                },
+            }
+        },
         temperature=0,
     )
     content = response.content[0].text.strip()
-    try:
-        return json.loads(content)["answer"]
-    except (json.JSONDecodeError, KeyError):
-        # Fall back to extracting a bare letter from the response
-        match = re.search(r'\b([ABCD])\b', content)
-        if match:
-            return match.group(1)
-        raise ValueError(f"Could not parse answer from: {content!r}")
+    return json.loads(content)["answer"]
 
 
 async def evaluate_sample(
