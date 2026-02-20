@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+from typing import Optional
 
 import anthropic
 import openai
@@ -108,7 +109,7 @@ async def _call_claude_api(client: anthropic.AsyncAnthropic, model: str, prompt:
 
 async def evaluate_sample(
     openai_client: openai.AsyncOpenAI,
-    anthropic_client: anthropic.AsyncAnthropic | None,
+    anthropic_client: Optional[anthropic.AsyncAnthropic],
     model: str,
     sample: dict,
     semaphore: asyncio.Semaphore,
@@ -138,7 +139,7 @@ async def run_model_eval(
     model: str,
     samples: list[dict],
     concurrency: int,
-    anthropic_client: anthropic.AsyncAnthropic | None = None,
+    anthropic_client: Optional[anthropic.AsyncAnthropic] = None,
 ) -> list[dict]:
     """Evaluate all samples for a single model concurrently."""
     semaphore = asyncio.Semaphore(concurrency)

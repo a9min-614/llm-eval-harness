@@ -13,7 +13,7 @@ from harness.benchmark import load_mmlu_samples
 from harness.evaluator import run_model_eval
 from harness.reporter import print_summary_table, save_markdown_report, save_results
 
-DEFAULT_MODELS = ["gpt-4o-mini", "gpt-4o", "claude-opus-4-6"]
+DEFAULT_MODELS = ["gpt-4o-mini", "gpt-4o", "claude-haiku-4-5"]
 DEFAULT_SUBJECTS = [
     "high_school_mathematics",
     "college_computer_science",
